@@ -374,13 +374,12 @@ def _make_bundle_core():
                     bundle.closes,
                     minutes_per_day=bundle.minutes_per_day,
                 )
-                asset_db_writer = stack.enter_context(
-                    AssetDBWriter(
-                        wd.getpath(*asset_db_relative(
-                            name, timestr, environ=environ,
-                        ))
-                    )
+                asset_db_writer = AssetDBWriter(
+                    wd.getpath(*asset_db_relative(
+                        name, timestr, environ=environ,
+                    ))
                 )
+
                 adjustment_db_writer = stack.enter_context(
                     SQLiteAdjustmentWriter(
                         wd.getpath(*adjustment_db_relative(

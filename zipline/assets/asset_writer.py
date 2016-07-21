@@ -560,9 +560,3 @@ class AssetDBWriter(object):
             exchanges=exchanges_output,
             root_symbols=root_symbols_output,
         )
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *exc_info):
-        pass  # Shouldn't dispose of the engine explicitly

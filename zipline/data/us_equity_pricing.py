@@ -211,10 +211,14 @@ class BcolzDailyBarWriter(object):
         self._filename = filename
 
         if start_session != end_session:
-            assert calendar.is_session(start_session),\
-                "Start session is invalid!"
-            assert calendar.is_session(end_session),\
-                "End session is invalid!"
+            if not calendar.is_session(start_session):
+                raise ValueError(
+                    "Start session %s is invalid!" % start_session
+                )
+            if not calendar.is_session(end_session):
+                raise ValueError(
+                    "End session %s is invalid!" % end_session
+                )
 
         self._start_session = start_session
         self._end_session = end_session
