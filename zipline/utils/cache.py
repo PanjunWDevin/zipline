@@ -273,12 +273,11 @@ class working_file(object):
     Notes
     -----
     The file is moved on __exit__ if there are no exceptions.
-    ``working_file`` uses :func:`shutil.copyfile` to move the actual files,
-    meaning it has as strong of guarantees as :func:`shutil.copyfile`.
+    ``working_file`` uses :func:`shutil.move` to move the actual files,
+    meaning it has as strong of guarantees as :func:`shutil.move`.
     """
     def __init__(self, final_path, *args, **kwargs):
         self._tmpfile = NamedTemporaryFile(delete=False, *args, **kwargs)
-        self._name = self._tmpfile.name
         self._final_path = final_path
 
     @property
@@ -329,7 +328,7 @@ class working_dir(object):
         self._final_path = final_path
 
     def ensure_dir(self, *path_parts):
-        """ensures a subdirectory of the working directory.
+        """Ensures a subdirectory of the working directory.
 
         Parameters
         ----------
