@@ -21,9 +21,10 @@ from six import viewkeys
 
 from zipline.gens.sim_engine import (
     BAR,
-    DAY_START,
-    DAY_END,
-    MINUTE_END
+    SESSION_START,
+    SESSION_END,
+    MINUTE_END,
+    BEFORE_TRADING_START_BAR
 )
 
 log = Logger('Trade Simulation')
@@ -181,9 +182,6 @@ class AlgorithmSimulator(object):
                     algo.blotter.process_splits(splits)
                     perf_tracker.position_tracker.handle_splits(splits)
 
-            # call before trading start
-            algo.before_trading_start(current_data)
-
         def handle_benchmark(date, benchmark_source=self.benchmark_source):
             algo.perf_tracker.all_benchmark_returns[date] = \
                 benchmark_source.get_value(date)
@@ -202,7 +200,7 @@ class AlgorithmSimulator(object):
 
             if algo.data_frequency == 'minute':
                 def execute_order_cancellation_policy():
-                    algo.blotter.execute_cancel_policy(DAY_END)
+                    algo.blotter.execute_cancel_policy(SESSION_END)
 
                 def process_minute_capital_changes(dt):
                     # If we are running daily emission, prices won't
@@ -237,15 +235,19 @@ class AlgorithmSimulator(object):
             for dt, action in self.clock:
                 if action == BAR:
                     every_bar(dt)
-                elif action == DAY_START:
+                elif action == SESSION_START:
                     once_a_day(dt)
-                elif action == DAY_END:
-                    # End of the day.
+                elif action == SESSION_END:
+                    # End of the session.
                     if algo.perf_tracker.emission_rate == 'daily':
                         handle_benchmark(normalize_date(dt))
                     execute_order_cancellation_policy()
 
                     yield self._get_daily_message(dt, algo, algo.perf_tracker)
+                elif action == BEFORE_TRADING_START_BAR:
+                    # call before trading start
+                    algo.on_dt_changed(dt)
+                    algo.before_trading_start(self.current_data)
                 elif action == MINUTE_END:
                     handle_benchmark(dt)
                     minute_msg = \
